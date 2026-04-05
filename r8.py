@@ -29,23 +29,33 @@
 import RPi.GPIO as GPIO
 import time
 
-FLAME = 17
-LED = 18
+FLAME_DO = 17
+ALERT = 18
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(FLAME, GPIO.IN)
-GPIO.setup(LED, GPIO.OUT)
+GPIO.setup(FLAME_DO, GPIO.IN)
+GPIO.setup(ALERT, GPIO.OUT)
+
+GPIO.output(ALERT, False)
+
+print("Flame Sensor Ready... Press CTRL+C to stop")
 
 try:
     while True:
-        if GPIO.input(FLAME) == 0:
-            print("🔥 Flame Detected")
-            GPIO.output(LED, GPIO.HIGH)
+        value = GPIO.input(FLAME_DO)
+        print("Sensor Output =", value)
+
+        if value == 0:
+            GPIO.output(ALERT, True)
+            print("🔥 Flame Detected! ALERT ON")
         else:
-            print("No Flame")
-            GPIO.output(LED, GPIO.LOW)
+            GPIO.output(ALERT, False)
+            print("No flame detected. ALERT OFF")
 
         time.sleep(0.5)
 
 except KeyboardInterrupt:
+    print("Exiting...")
+
+finally:
     GPIO.cleanup()
